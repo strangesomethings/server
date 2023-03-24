@@ -277,12 +277,12 @@ module.exports = (server) => {
 
         socket.on('disconnect', () => { // 연결 종료 시
             console.log('클라이언트 접속 해제', ip, socket.id);
-            for(let i=0;i<deception_player.length;i++) {
-                if(deception_player[i].socketid == socket.id) {
-                    deception_player.splice(i,1)
+            for(let i=0;i<player.length;i++) {
+                if(player[i].socketid == socket.id) {
+                    player.splice(i,1)
                     socket.leave(room)
-                    socket.emit('disconnect',deception_player)
-                    console.log(deception_player[i].name,'님, ',room+'번 방 leave 완료!')
+                    socket.emit('disconnect',player)
+                    console.log(player[i].name,'님, ',room+'번 방 leave 완료!')
                 }
             }
             clearInterval(socket.interval);
