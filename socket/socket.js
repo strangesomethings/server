@@ -16,7 +16,7 @@ var hiding_ox_per = 3
 // 쿨다운(대기시간) -> 타이머 이벤트는 클라이언트에서 작동하도록 함.
 // 쿨다운(대기시간)
 //발전기 고쳐진 정도
-var inrirmary_generator_per = 0
+var infirmary_generator_per = 0
 var oxygen_generator_per = 0
 var engine_generator_per = 0
 var laboratory_generator_per = 0
@@ -169,15 +169,25 @@ function lock_door(location) { //문 잠그기/ 문 잠그기 해제
     else location.door = true
     return location
 }
-function fix_generator(generator,key) { //발전기 수리
+function is_mainroom(gen) { //메인룸인지 확인
+    let gen_idx = map_name_to_index(gen)
+    if(gen_idx!=0 && gen_idx%3!=0) gen_idx = -1
+    return gen_idx
+}
+function fix_generator(gen_idx,key) { //발전기 수리 key는 미니 미션 성공 여부(리듬겜)
     let fix_level = 0
     if(generator_level == 0) fix_level = 20
     else if(generator_level == 1) fix_level = 15
     else if(generator_level == 2) fix_level = 10
-    if(key == true) generator += fix_level
-    else generator -= 5
+    if(key == false) fix_level = -5
+    if(gen_idx == 0) oxygen_generator_per += fix_level
+    else if(gen_idx == 3) infirmary_generator_per += fix_level
+    else if(gen_idx == 6) engine_generator_per += fix_level
+    else if(gen_idx == 9) laboratory_generator_per += fix_level
+    else if(gen_idx == 12) electricity_generator_per += fix_level
     return generator
 }
+//let main_room = [oxygen_room,infirmary_room,engine_room,laboratory_room,electricity_room]
 function health_quest(key, player) { // 체력단련실 미션
     if(key == true) meterial_speed = 5
     player.oxygen -= 5
@@ -352,8 +362,6 @@ module.exports = (server) => {
             socket.to(room).emit('choosemoster',map,player)
         })
 
-        socket.on()
-
         socket.on('move',(data) => {
             const {player_name, destination, room} = data
             let flag = 0
@@ -369,6 +377,19 @@ module.exports = (server) => {
             if (flag == 0) {
                 socket.to(room).emit('move','error')
             }
+        })        
+
+        socket.on('lockdoor',(data)=>{
+            const {location, room} = data
+            let location_idx = map_name_to_index(location)
+            lock_door(location_idx) //잠겨져 있으면 잠금해제, 열려있으면 잠금
+            socket.emit('lockdoor', map, player)
+        })
+
+        socket.on('fixgenerator',(data)=>{
+            const {location, key, room} = data
+            let gen_idx = is_mainroom(location)
+            fix_generator(gen_idx)
         })
 
         socket.on('gameinfo',(data) => {
