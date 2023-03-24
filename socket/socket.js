@@ -74,7 +74,6 @@ function playerlist_of_location(location_index) { //방에 있는 모든 인원(
     return map[location_index].player
 }
 function map_name_to_index(map_name) {
-    let map_name
     let err = 1
     for(let i=0; i<map.length;i++){
         if(map.place == map_name) {
