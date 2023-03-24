@@ -311,7 +311,7 @@ module.exports = (server) => {
                 for(let i=0;i<player.length;i++) {
                     if (player[i].name == name){
                         msg = 'dupplicate'
-                        socket.emit({code: 400, message: msg})
+                        socket.emit('joingame',{code: 400, message: msg})
                     }
                     else {
                         msg = 'success'
@@ -320,8 +320,9 @@ module.exports = (server) => {
                             oxygen_buff: false, elec_buff: false, engine_buff: false, laboratory_buff: false, infirmary_buff: false,
                             health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
                         player.push(player_form)
-                        socket.emit({code: 400, message: msg})
+                        socket.emit('joingame',{code: 400, message: msg})
                         socket.join(room)
+                        console.log(room+'번방 입장 완료!')
                     }
                 }  
             } 
@@ -350,11 +351,13 @@ module.exports = (server) => {
                 }
             }
             socket.to(room).emit('ready',{ready}) // 모두 레디를 한지 여부(t/f)
+            console.log(ready)
         })
 
         socket.on('startgame',(data) => {
             game_start()
             socket.to(room).emit('startgame', {map, player})
+            console.log('게임시작됨')
         })
 
         socket.on('choosemonster',(data) => {
