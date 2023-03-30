@@ -27,9 +27,9 @@ var generator_level = 0 //발전기 고쳐진 개수(0 -> 20%씩 수리, 1-> 15%
 //재료 파밍 속도
 var meterial_speed = 7
 var monster_location = -1
-
 //=================================시스템 이벤트================================
-function game_init(map) { // 게임 초기 설정. 맵의 재료, 발전기, 산소 등등.
+/** 게임 초기 설정. 맵의 재료, 발전기, 산소 등등. (필요인자: map)*/
+function game_init(map) { 
     let sub_room = [dining_room,storage_room,pilot_room,bed_room,cctv_room,
         health_room,conference_room,trash_room,communication_room,machine_room]
     let main_room = [oxygen_room,infirmary_room,engine_room,laboratory_room,electricity_room]
@@ -50,16 +50,18 @@ function game_init(map) { // 게임 초기 설정. 맵의 재료, 발전기, 산
         let hallway_place = hallway[i]
         let map_form = {place: hallway_place, player: []}
         map.push(map_form)
-    }// (각 복도 인덱스-15)*3 = 이어진 메인 룸 인덱스
+    }/** (각 복도 인덱스-15)*3 = 이어진 메인 룸 인덱스*/
 }
-function game_start() { //게임 시작
+/**게임 시작*/
+function game_start() { 
     game_init()
     for(let i=0;i<player.length;i++) {
         map[0].push(player[i].player_number)
         player[i].location = 3
     }//산소룸에서 게임 시작, 30초 동안 돌아다닌 후 술래 지정(func. choose_monster)
 }
-function choose_monster(player) { //술래 정하기
+/**술래 정하기(player)*/
+function choose_monster(player) { 
     let personnel = player.length
     randNum = Math.floor(Math.random()*personnel)
     player[randNum].role = 'monster'
@@ -89,7 +91,8 @@ function map_name_to_index(map_name) {
 
 
 //=====================플레이어 행동==================
-function move_room(player, destination_index) { // 방 이동
+/**방 이동 */ 
+function move_room(player, destination_index) { 
     let location_index = inquire_location(player)
     for(let i=0;i<map[location_index].player.length;i++){//이전 방에서 플레이어 이름 제거
         if(map[location_index].player[i] == player.player_number) {
@@ -117,33 +120,38 @@ function move_room(player, destination_index) { // 방 이동
         }
     }
 }
-function moster_sensor(player) { //괴물 센서(누군가 이동할때마다 콜) 미완.
+/**괴물 센서(누군가 이동할때마다 콜) 미완.*/
+function moster_sensor(player) { 
     let location_index = inquire_location(player)
     map[i]
 }
-function player_hiding(player) { // 숨기 << 수정?
+/**숨기 << 수정?*/
+function player_hiding(player) { 
     player.stat = 'hiding'
     player.oxygen -= hiding_ox_per
     return player
 }
-function player_door_touch(player) { // 문 상호작용
+/** 문 상호작용 */
+function player_door_touch(player) { 
     map[i] = lock_door(map[i])
     player.oxygen -= door_ox_per
 }
-function player_touch_generator(player) { //발전기 사용
+/** 발전기 사용 */
+function player_touch_generator(player) { 
     player.oxygen -= generator_ox_per
     //발전기 작동 함수 콜
     
 }
-function meterial_farming(player, key) { // 재료파밍
+/** 재료파밍 */
+function meterial_farming(player, key) { 
     player.oxygen -= meterial_ox_per
     if(key == true) {
         let randnum = Math.random(3)
         player.meterial += 1
     }
     return player
-}
-function oxygen_charge(player, key) { // 산소충전 key는 산소룸 = true/ 다른 메인룸 = false
+}/**산소충전 key는 산소룸 = true/ 다른 메인룸 = false*/
+function oxygen_charge(player, key) { 
     if(key == true) {
         player.oxygen = oxygen_room_ox_supply_per
     }
@@ -152,7 +160,8 @@ function oxygen_charge(player, key) { // 산소충전 key는 산소룸 = true/ �
         else player.oxygen += main_room_ox_supply_per
     }
 }
-function oxygen_subroom_fix(player, key) { //서브 룸 산소 시스템 활성화(player)
+/**서브 룸 산소 시스템 활성화(player)*/
+function oxygen_subroom_fix(player, key) { 
     if(key == true) {
         player.oxygen -= 5
     }
@@ -160,21 +169,25 @@ function oxygen_subroom_fix(player, key) { //서브 룸 산소 시스템 활성�
 
 
 //==================상호작용===============
-function meet_monster(player) { //괴물 조우
+/**괴물 조우*/
+function meet_monster(player) { 
     player.stat = 'infect'
     return player
 }
-function lock_door(location) { //문 잠그기/ 문 잠그기 해제
+ /**문 잠그기/ 문 잠그기 해제*/
+function lock_door(location) {
     if(location.door == true) location.door = false
     else location.door = true
     return location
 }
-function is_mainroom(gen) { //메인룸인지 확인
+/**메인룸인지 확인*/
+function is_mainroom(gen) { 
     let gen_idx = map_name_to_index(gen)
     if(gen_idx!=0 && gen_idx%3!=0) gen_idx = -1
     return gen_idx
 }
-function fix_generator(gen_idx,key) { //발전기 수리 key는 미니 미션 성공 여부(리듬겜)
+/**발전기 수리 key는 미니 미션 성공 여부(리듬겜)*/
+function fix_generator(gen_idx,key) { 
     let fix_level = 0
     if(generator_level == 0) fix_level = 20
     else if(generator_level == 1) fix_level = 15
@@ -188,23 +201,27 @@ function fix_generator(gen_idx,key) { //발전기 수리 key는 미니 미션 �
     return generator
 }
 //let main_room = [oxygen_room,infirmary_room,engine_room,laboratory_room,electricity_room]
-function health_quest(key, player) { // 체력단련실 미션
+/**체력단련실 미션*/
+function health_quest(key, player) { 
     if(key == true) meterial_speed = 5
     player.oxygen -= 5
 }
-function oxygen_mainroom_use(room) { //메인룸 산소 시스템 비활성화
+/**메인룸 산소 시스템 비활성화*/
+function oxygen_mainroom_use(room) { 
     room.oxygen= false
     return room
 }
-function oxygen_subroom_active(room) { //서브룸 산소 시스템 활성화
+/**서브룸 산소 시스템 활성화*/
+function oxygen_subroom_active(room) { 
     room.oxygen_supply = true
     return room
 }
-//쿨타임 지난 후 재충전
+/**쿨타임 지난 후 재충전*/
 function vent_cooldown(room) {
     room.vent = true
 }
-function oxygen_cooldown(room) { //메인룸 산소 쿨
+/**메인룸 산소 쿨*/
+function oxygen_cooldown(room) { 
     room.oxygen = true
 }
 function meterial_cooldown(room) {
@@ -226,8 +243,8 @@ let player_form = {name: name, player_number: index, ready: false, role: survivo
 */
 
 //괴물
-
-function monster_seeking(monster) { // 숨어있는 플레이어 탐색
+/**숨어있는 플레이어 탐색*/
+function monster_seeking(monster) { 
     room_idx = inquire_location(monster)
     if(map[room_idx].player.length > 1) {
         
@@ -239,15 +256,18 @@ function monster_seeking(monster) { // 숨어있는 플레이어 탐색
 
     }
 }
-function monster_door_touch(monster) { // 문 상호작용
+/**문 상호작용*/
+function monster_door_touch(monster) { 
     map[i] = lock_door(map[i])
 }
-function monster_touch_generator(generator_per) { //발전기 고장내기
+/**발전기 고장내기*/
+function monster_touch_generator(generator_per) { 
     generator_per -= 10
     if( generator_per <= 0) generator_per = 0
     return generator_per
 }
-function moster_search_boost(){ // 탐색부스트(술래 능력)
+/** 탐색부스트(술래 능력)*/
+function moster_search_boost(){ 
 
 }
 function moster_prevent_vent() {//환기구 봉쇄
@@ -290,7 +310,7 @@ module.exports = (server) => {
 
         socket.on('chatting', (data) => {
             let msg_time = moment(new Date()).format("YYYY-MM-DD hh:mm:ss")
-            const {name, message, room} = data.message;
+            const {name, message, room} = data;
             console.log('n: ',name)
             console.log('m: ',message)
             console.log('r: ',room)
@@ -304,7 +324,7 @@ module.exports = (server) => {
         })    
     
         socket.on('joingame', (data) => {
-            const {name,room} = data.name
+            const {name,room} = data
             
             let msg = ''
             if (data.room != '') {
