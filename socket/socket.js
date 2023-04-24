@@ -328,7 +328,7 @@ module.exports = (server) => {
             let msg = ''
             console.log(data)
             let flag = 0
-            if (data.room != '' && flag ==0) {
+            if (data.room != '') {
                 if(player.length != 0) {
                     console.log('한명 이상 존재함')
                     for(let i=0;i<player.length;i++) {
@@ -337,21 +337,22 @@ module.exports = (server) => {
                             console.log(name,'은 이미 있는 이름임!')
                             socket.emit('joingame',{code: 400, message: msg, player})
                             flag = 1
-                        }
-                        else {
-                            msg = 'success'
-                            let index = player.length
-                            let player_form = {name: name, player_number: index, ready: false, role: 'survivor', oxygen: 100, meterial: 0, vaccine: 0, 
-                                oxygen_buff: false, elec_buff: false, engine_buff: false, laboratory_buff: false, infirmary_buff: false,
-                                health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
-                            player.push(player_form)
-                            console.log(player)
-                            socket.emit('joingame',{code: 200, message: msg, player})
-                            socket.join(room)
-                            console.log(room+'번방 입장 완료!')
-                            flag= 1
-                        }
+                            break
+                        }                        
                     }  
+                    if(flag == 0) {
+                        msg = 'success'
+                        let index = player.length
+                        let player_form = {name: name, player_number: index, ready: false, role: 'survivor', oxygen: 100, meterial: 0, vaccine: 0, 
+                            oxygen_buff: false, elec_buff: false, engine_buff: false, laboratory_buff: false, infirmary_buff: false,
+                            health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
+                        player.push(player_form)
+                        console.log(player)
+                        socket.emit('joingame',{code: 200, message: msg, player})
+                        socket.join(room)
+                        console.log(room+'번방 입장 완료!')
+                    }
+                    
                 }
                 else {
                     console.log('첨에 방 만든놈')
@@ -472,8 +473,5 @@ module.exports = (server) => {
                 console.log('value is empty!')
             }
         })
-
-        
-    
     })
 }
