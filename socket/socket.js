@@ -354,7 +354,7 @@ module.exports = (server) => {
                             health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
                         player.push(player_form)
                         console.log(player)
-                        socket.emit('joingame',{code: 200, message: msg, player})
+                        socket.emit('joingame',{code: 200, player: player})
                         socket.join(room)
                         console.log(room+'번방 입장 완료!')
                     }
@@ -369,7 +369,7 @@ module.exports = (server) => {
                                 health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
                             player.push(player_form)
                             console.log(player)
-                            socket.emit('joingame',{code: 200, message: msg})
+                            socket.emit('joingame',{code: 200, player: player})
                             socket.join(room)
                             console.log(room+'번방 입장 완료!')
                             flag =1
@@ -382,7 +382,7 @@ module.exports = (server) => {
 
         socket.on('ready',(data) => {
             const {name,room} = data
-            let Imready
+            var Imready=flase
             for(let i=0; i<player.length;i++){
                 if(player[i].name == name) {
                     if(player[i].ready == true){
@@ -395,15 +395,15 @@ module.exports = (server) => {
                     }
                 }
             }
-            let everyone_ready = true
+            var everyone_ready = true
             for(let i=0;i<player.length;i++){
                 if(player[i].ready == false) {
                     everyone_ready = false
                     break
                 }
             }
-            socket.to(room).emit('ready',{ready: Imready, everyone_ready: everyone_ready}) // 모두 레디를 한지 여부(t/f)
-            console.log(ready)
+            socket.to(room).emit('ready',{ready: Imready, everyone_ready: everyone_ready, player: player}) // 모두 레디를 한지 여부(t/f)
+            console.log(Imready,everyone_ready)
         })
 
         socket.on('startgame',(data) => {
@@ -476,6 +476,7 @@ module.exports = (server) => {
                     }
                 }
                 socket.leave(room)
+                io.to(room).emit('leave',{player: player})
                 console.log(room+'번 방 leave 완료!')
             }
             else{
