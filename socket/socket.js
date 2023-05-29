@@ -348,7 +348,7 @@ module.exports = (server) => {
                     }  
                     if(flag == 0) {
                         msg = 'success'
-                        let index = get_player_num()
+                        let index = player.length
                         let player_form = {name: name, player_number: index, ready: false, role: 'survivor', oxygen: 100, meterial: 0, vaccine: 0, 
                             oxygen_buff: false, elec_buff: false, engine_buff: false, laboratory_buff: false, infirmary_buff: false,
                             health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
