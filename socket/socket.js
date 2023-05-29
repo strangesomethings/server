@@ -395,14 +395,14 @@ module.exports = (server) => {
                     }
                 }
             }
-            // let everyone_ready = true
-            // for(let i=0;i<player.length;i++){
-            //     if(player[i].ready == false) {
-            //         everyone_ready = false
-            //         break
-            //     }
-            // }
-            socket.to(room).emit('ready',{ready: Imready}) // 모두 레디를 한지 여부(t/f)
+            let everyone_ready = true
+            for(let i=0;i<player.length;i++){
+                if(player[i].ready == false) {
+                    everyone_ready = false
+                    break
+                }
+            }
+            socket.to(room).emit('ready',{ready: Imready, everyone_ready: everyone_ready}) // 모두 레디를 한지 여부(t/f)
             console.log(ready)
         })
 
