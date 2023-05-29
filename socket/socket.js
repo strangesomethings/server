@@ -1,4 +1,5 @@
 const Socketio = require('socket.io')
+var game_room = {}
 var player = []
 var map = []
 //산소 소모량
@@ -27,6 +28,7 @@ var generator_level = 0 //발전기 고쳐진 개수(0 -> 20%씩 수리, 1-> 15%
 //재료 파밍 속도
 var meterial_speed = 7
 var monster_location = -1
+// 변수 서버에 저장 -> 완성 후에는 radis 같은 캐시 메모리에 저장하도록 시도해볼 것
 //=================================시스템 이벤트================================
 /** 게임 초기 설정. 맵의 재료, 발전기, 산소 등등. (필요인자: map)*/
 function game_init(map) { 
@@ -280,6 +282,10 @@ function monster_prevent_sensor() { //감지 무력화
 
 }
 
+//==========================================system=============================
+function get_player_num() {
+    player
+}
 
 module.exports = (server) => {
     
@@ -293,7 +299,7 @@ module.exports = (server) => {
         const req = socket.request;
         const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
         console.log('새로운 클라이언트 접속! ip:', ip,'socketid:', socket.id,'reqip:', req.ip);
-
+        
 
         socket.on('disconnect', () => { // 연결 종료 시
             console.log('클라이언트 접속 해제', ip, socket.id);
@@ -342,7 +348,7 @@ module.exports = (server) => {
                     }  
                     if(flag == 0) {
                         msg = 'success'
-                        let index = player.length
+                        let index = get_player_num()
                         let player_form = {name: name, player_number: index, ready: false, role: 'survivor', oxygen: 100, meterial: 0, vaccine: 0, 
                             oxygen_buff: false, elec_buff: false, engine_buff: false, laboratory_buff: false, infirmary_buff: false,
                             health_buff: false, stat: 'live', location: -1} // stat: 기절,감염 여부 (live/faint/infect/hiding), loaction = -1: 로비, 0~14 각 장소
@@ -376,24 +382,27 @@ module.exports = (server) => {
 
         socket.on('ready',(data) => {
             const {name,room} = data
+            let Imready
             for(let i=0; i<player.length;i++){
                 if(player[i].name == name) {
                     if(player[i].ready == true){
                         player[i].ready = false
+                        Imready = player[i].ready
                     }
                     else {
                         player[i].ready = true
+                        Imready = player[i].ready
                     }
                 }
             }
-            let everyone_ready = true
-            for(let i=0;i<player.length;i++){
-                if(player[i].ready == false) {
-                    everyone_ready = false
-                    break
-                }
-            }
-            socket.to(room).emit('ready',{ready}) // 모두 레디를 한지 여부(t/f)
+            // let everyone_ready = true
+            // for(let i=0;i<player.length;i++){
+            //     if(player[i].ready == false) {
+            //         everyone_ready = false
+            //         break
+            //     }
+            // }
+            socket.to(room).emit('ready',{ready: Imready}) // 모두 레디를 한지 여부(t/f)
             console.log(ready)
         })
 
@@ -459,7 +468,7 @@ module.exports = (server) => {
         })
 
         socket.on('leavegame',(data) => {
-            let {name, room} = data.room
+            let {name, room} = data
             if (data.room != '') {
                 for (let i=0;i<player.length;i++){
                     if(player[i].name == name){
